@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun - Cemilkuy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Menggunakan style yang sama agar konsisten */
+        body { 
+            background: linear-gradient(135deg, #FF7F50 0%, #ff9f43 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; font-family: 'Open Sans', sans-serif; 
+        }
+        .btn-back-home {
+            position: absolute; top: 25px; left: 25px; text-decoration: none; color: #fff; font-weight: bold; font-size: 14px;
+            display: flex; align-items: center; gap: 8px; padding: 10px 15px; background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px; backdrop-filter: blur(5px); transition: 0.3s;
+        }
+        .btn-back-home:hover { background: white; color: #FF7F50; }
+        .register-box { 
+            background: white; padding: 40px; border-radius: 20px; width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .login-logo {
+            width: 80px; height: 80px; object-fit: cover; border-radius: 50%;
+            border: 3px solid #FF7F50; padding: 3px; background: white; margin-bottom: 10px;
+        }
+        h2 { font-family: 'Fredoka One', cursive; margin: 0 0 5px; color: #333; letter-spacing: 1px; }
+        p.subtitle { margin: 0 0 20px; color: #777; font-size: 13px; }
+        .input-group { position: relative; margin-bottom: 12px; }
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; width: 20px; text-align: center; }
+        input { 
+            width: 100%; padding: 12px 12px 12px 45px; margin: 0; border: 2px solid #f1f2f6; 
+            border-radius: 10px; box-sizing: border-box; font-size: 14px; transition: 0.3s; background: #fafafa;
+        }
+        input:focus { border-color: #FF7F50; outline: none; background: white; }
+        .btn-register { 
+            width: 100%; padding: 12px; background: #FF7F50; color: white; border: none; 
+            border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-register:hover { background: #e06b3e; transform: translateY(-2px); }
+        .links { margin-top: 20px; font-size: 13px; color: #666; }
+        .links a { color: #FF7F50; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="btn-back-home"><i class="fas fa-arrow-left"></i> Kembali</a>
+
+    <div class="register-box">
+        <img src="gambar/logo.jpg" alt="Logo Cemilkuy" class="login-logo">
+        <h2>Daftar Akun Baru</h2>
+        <p class="subtitle">Gabung jadi member Cemilkuy!</p>
+        
+        <div class="input-group">
+            <i class="fas fa-user-circle"></i>
+            <input type="text" id="name" placeholder="Nama Lengkap">
+        </div>
+        
+        <div class="input-group">
+            <i class="fab fa-whatsapp"></i>
+            <input type="number" id="phone" placeholder="Nomor WhatsApp">
+        </div>
+        <div class="input-group">
+            <i class="fas fa-at"></i>
+            <input type="text" id="user" placeholder="Username (Isi dengan NIM)">
+        </div>
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="pass" placeholder="Password">
+        </div>
+
+        <button class="btn-register" onclick="registerUser()">Daftar Member</button>
+        
+        <div class="links">
+            <p>Sudah punya akun? <a href="login.html">Login disini</a></p>
+            <p>Ingin jualan? <a href="register.html">Buka Toko</a></p>
+        </div>
+    </div>
+
+    <script>
+        function registerUser() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+
+            if(!name || !phone || !user || !pass) {
+                alert("Mohon isi semua data!");
+                return;
+            }
+
+            // Ambil data user yang ada (Gabung dengan data penjual di satu database localStorage)
+            let users = JSON.parse(localStorage.getItem('cemilkuy_users')) || [];
+            
+            // Cek Username kembar
+            if(users.find(u => u.username === user)) {
+                alert("Username sudah dipakai. Silakan cari yang lain!");
+                return;
+            }
+
+            // SIMPAN DATA SEBAGAI MEMBER
+            users.push({ 
+                name: name, 
+                shop: "-", // Member tidak punya toko
+                phone: phone, 
+                username: user, 
+                password: pass, 
+                role: 'member' // <-- PENTING: Role dibedakan jadi member
+            });
+            
+            localStorage.setItem('cemilkuy_users', JSON.stringify(users));
+            
+            const btn = document.querySelector('.btn-register');
+            btn.innerText = "Mendaftarkan...";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert("Akun berhasil dibuat! Silakan Login.");
+                window.location.href = 'login.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

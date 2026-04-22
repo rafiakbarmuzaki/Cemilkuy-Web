@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cemilkuy - Jajan Enak & Seru!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <img src="gambar/logo.jpg" alt="Logo">
+            <span>Cemil<span style="color:#333;">kuy</span></span>
+        </div>
+        
+        <div class="search-box">
+            <i class="fas fa-search search-icon" style="color:#aaa; margin-left:10px;"></i>
+            <input type="text" id="searchInput" placeholder="Cari cemilan..." onkeyup="searchMenu()">
+        </div>
+
+        <div class="nav-icons">
+            <div id="auth-container" class="auth-buttons" style="display: flex; gap: 10px; align-items: center;">
+                <a href="login.html" class="btn-login" style="text-decoration:none; color:#FF7F50; font-weight:bold; border:2px solid #FF7F50; padding:5px 15px; border-radius:25px; font-size:13px; transition:0.3s;">
+                    Masuk
+                </a>
+                <a href="register.html" class="btn-register" style="text-decoration:none; background:#FF7F50; color:white; font-weight:bold; border:2px solid #FF7F50; padding:5px 15px; border-radius:25px; font-size:13px; transition:0.3s;">
+                    Buka Toko
+                </a>
+            </div>
+
+            <div id="user-container" style="display: none; align-items: center; gap: 10px;">
+                <span id="user-greeting" style="font-weight: bold; color: #333; font-size: 13px; display: none;">Halo, User</span>
+                <a id="profile-btn" href="#" style="text-decoration:none; color:#FF7F50; font-weight:bold; border:2px solid #FF7F50; padding:5px 12px; border-radius:25px; transition:0.3s; display: flex; align-items: center; gap: 5px; font-size:13px;">
+                    <i class="fas fa-user-circle"></i> 
+                    <span id="profile-text">Akun</span>
+                </a>
+            </div>
+            
+            <div class="history-btn" onclick="openHistory()" title="Riwayat & Rating">
+                <i class="fas fa-history"></i>
+            </div>
+
+            <div class="cart-btn" onclick="toggleCart()">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-count">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="floating-snack snack-1">🍿</div>
+        <div class="floating-snack snack-2">🍩</div>
+        <div class="floating-snack snack-3">🥤</div>
+
+        <div class="hero-text">
+            <span style="background:#FFEAA7; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:12px; color:#d35400;">🔥 JAJANAN HITS KAMPUS</span>
+            <h1>Teman Ngunyah <br><span style="color:#FF7F50;">Paling Asik!</span></h1>
+            <p>Lapar pas nugas? Pesan di Cemilkuy, banyak promo menanti!</p>
+            <a href="#menu" class="cta-btn">Jajan Sekarang <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="hero-img-container">
+            <img src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png" alt="Snack">
+        </div>
+
+        <div class="wave-divider">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </header>
+
+    <section id="menu" class="menu-section">
+        <div class="category-tabs">
+            <button class="cat-btn active" onclick="filterProduk('all')">😋 Semua</button>
+            <button class="cat-btn" onclick="filterProduk('Pedas')">🔥 Pedas</button>
+            <button class="cat-btn" onclick="filterProduk('Manis')">🍫 Manis</button>
+            <button class="cat-btn" onclick="filterProduk('Asin')">🧀 Asin</button>
+        </div>
+        <div class="product-grid" id="product-list"></div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            
+            <div class="footer-col">
+                <h3>Tentang Kami</h3>
+                <p>Cemilkuy adalah platform jajan nomor #1 yang menyediakan berbagai macam cemilan hits dengan harga mahasiswa.</p>
+            </div>
+
+            <div class="footer-col">
+                <h3>Navigasi</h3>
+                <ul>
+                    <li><a href="#menu">Lihat Menu</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html">Buka Toko</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Hubungi Admin</h3>
+                <div class="social-links">
+                    <a href="https://wa.me/6285810533390" target="_blank"><i class="fab fa-whatsapp"></i> Admin IT 1 (Fathan)</a>
+                    <a href="https://wa.me/6281818862411" target="_blank"><i class="fab fa-whatsapp"></i> Admin IT 2 (Rafi)</a>
+                    <a href="https://wa.me/6285161175387" target="_blank"><i class="fab fa-whatsapp"></i> Admin IT 3 (Razan)</a>
+                    <a href="https://wa.me/6282213635611" target="_blank"><i class="fab fa-whatsapp"></i> Keuangan 1 (Revitha)</a>
+                    <a href="https://wa.me/6281295534887" target="_blank"><i class="fab fa-whatsapp"></i> Keuangan 2 (Hima)</a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h3>Sosial Media</h3>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/cemilkuy_umb/" target="_blank"><i class="fab fa-instagram"></i> @cemilkuy_umb</a>
+                    <a href="https://www.tiktok.com/@cemilkuy_umb" target="_blank"><i class="fab fa-tiktok"></i> @cemilkuy_umb</a>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Cemilkuy Indonesia. Dibuat dengan ❤️ oleh Admin IT Cemilkuy.</p>
+        </div>
+    </footer>
+    
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Keranjang Jajan</h3>
+            <div class="close-cart" onclick="toggleCart()">&times;</div>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-footer">
+            <div class="total">Total: <span id="cart-total">Rp 0</span></div>
+            <button id="tombol-checkout" class="checkout-btn">Checkout Sekarang</button>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCheckout()">&times;</span>
+            <h2 style="text-align:center; margin-bottom:15px;">Pembayaran QRIS</h2>
+            
+            <form id="payment-form">
+                <div class="form-group">
+                    <label>Nama Penerima</label>
+                    <input type="text" id="nama-pembeli" placeholder="Nama Kamu" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="number" id="hp-pembeli" placeholder="08xxxxx" required>
+                </div>
+                <div class="form-group">
+                    <label>Alamat Pengantaran</label>
+                    <textarea id="alamat-pembeli" placeholder="Gedung, Lantai, Kelas..." required></textarea>
+                </div>
+                
+                <div class="qris-section">
+                    <p style="font-weight:bold; margin-bottom:10px; color:#2d3436;">Scan QRIS di bawah ini:</p>
+                    
+                    <div class="qris-container" style="border: 1px solid #ddd; padding: 10px; border-radius: 10px; display: inline-block; background: white;">
+                        <img id="qris-image" src="gambar/QR Cemilkuy.png" alt="QRIS Code" style="width: 150px; height: 150px; display:block; margin:0 auto; object-fit: contain;">
+                        <div id="qris-seller-name" style="margin-top: 8px; font-size: 14px; font-weight: bold; color: #333;">CEMILKUY INDONESIA</div>
+                    </div>
+
+                    <div class="payment-instruction" style="margin-top: 10px; font-size: 12px; color: #555;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Menerima semua e-Wallet & M-Banking
+                    </div>
+
+                    <div class="total-display" style="margin-top: 15px; margin-bottom: 15px;">
+                        Total Bayar: <strong id="final-total" style="font-size:1.3rem; color:#FF7F50;">Rp 0</strong>
+                    </div>
+
+                    <button type="submit" class="pay-btn">
+                        <i class="fas fa-camera"></i> Konfirmasi ke WhatsApp
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeHistory()">&times;</span>
+            <h2 style="text-align:center; margin-bottom:20px;">Riwayat Jajanmu</h2>
+            <div id="history-list" class="history-container"></div>
+        </div>
+    </div>
+
+    <div id="rating-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close-modal" onclick="closeRating()">&times;</span>
+            <h2>Beri Penilaian</h2>
+            <p id="rating-product-name" style="color: #666; margin-bottom: 10px;"></p>
+            
+            <div class="star-widget">
+                <input type="radio" name="rate" id="rate-5" onclick="setRating(5)"><label for="rate-5" class="fas fa-star"></label>
+                <input type="radio" name="rate" id="rate-4" onclick="setRating(4)"><label for="rate-4" class="fas fa-star"></label>
+                <input type="radio" name="rate" id="rate-3" onclick="setRating(3)"><label for="rate-3" class="fas fa-star"></label>
+                <input type="radio" name="rate" id="rate-2" onclick="setRating(2)"><label for="rate-2" class="fas fa-star"></label>
+                <input type="radio" name="rate" id="rate-1" onclick="setRating(1)"><label for="rate-1" class="fas fa-star"></label>
+            </div>
+            
+            <textarea id="rating-review" placeholder="Gimana rasanya? Tulis ulasanmu..." style="width:100%; height:80px; margin-top:15px; padding:10px; border-radius:5px; border:1px solid #ddd;"></textarea>
+            
+            <button onclick="submitRating()" class="pay-btn">Kirim Penilaian</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const session = JSON.parse(localStorage.getItem('cemilkuy_session'));
+            const authContainer = document.getElementById('auth-container');
+            const userContainer = document.getElementById('user-container');
+            const userGreeting = document.getElementById('user-greeting');
+            const profileBtn = document.getElementById('profile-btn');
+            const profileText = document.getElementById('profile-text');
+
+            if (session) {
+                // User SUDAH Login
+                authContainer.style.display = 'none';
+                userContainer.style.display = 'flex';
+                
+                // Tampilkan Nama Depan
+                const firstName = session.name.split(' ')[0];
+                userGreeting.innerText = `Hai, ${firstName}`;
+                userGreeting.style.display = 'block';
+
+                // Cek Role untuk arah tombol Profil
+                if (session.role === 'member') {
+                    // Jika Member -> Ke dashboard-member.html (jika ada) atau tetap di sini
+                    profileBtn.href = '#'; 
+                    profileText.innerText = "Member";
+                } else {
+                    // Jika Seller/Admin -> Ke dashboard.html
+                    profileBtn.href = 'dashboard.html';
+                    profileText.innerText = "Toko Saya";
+                    profileBtn.innerHTML = '<i class="fas fa-store"></i> Toko Saya';
+                }
+
+                // Auto-fill nama di form checkout jika ada
+                const namaInput = document.getElementById('nama-pembeli');
+                const hpInput = document.getElementById('hp-pembeli');
+                if(namaInput) namaInput.value = session.name;
+                if(hpInput) hpInput.value = session.phone || '';
+
+            } else {
+                // User BELUM Login
+                authContainer.style.display = 'flex';
+                userContainer.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
