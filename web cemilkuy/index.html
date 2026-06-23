@@ -75,11 +75,15 @@
 
     <section id="menu" class="menu-section">
         <div class="category-tabs">
-            <button class="cat-btn active" onclick="filterProduk('all')">😋 Semua</button>
-            <button class="cat-btn" onclick="filterProduk('Pedas')">🔥 Pedas</button>
-            <button class="cat-btn" onclick="filterProduk('Manis')">🍫 Manis</button>
-            <button class="cat-btn" onclick="filterProduk('Asin')">🧀 Asin</button>
+    <button class="cat-btn active" onclick="filterProduk('all')">😋 Semua</button>
+    <button class="cat-btn" onclick="filterProduk('Pedas')">🔥 Pedas</button>
+    <button class="cat-btn" onclick="filterProduk('Manis')">🍫 Manis</button>
+    <button class="cat-btn" onclick="filterProduk('Asin')">🧀 Asin</button>
+    <button class="cat-btn" onclick="filterProduk('gorengan')">🍟 Gorengan</button>
+    <button class="cat-btn" onclick="filterProduk('snack')">🍿 Snack</button>
+    <button class="cat-btn" onclick="filterProduk('minuman')">🥤 Minuman</button>
         </div>
+
         <div class="product-grid" id="product-list"></div>
     </section>
 
@@ -105,9 +109,6 @@
                 <div class="social-links">
                     <a href="https://wa.me/6285810533390" target="_blank"><i class="fab fa-whatsapp"></i> Admin IT 1 (Fathan)</a>
                     <a href="https://wa.me/6281818862411" target="_blank"><i class="fab fa-whatsapp"></i> Admin IT 2 (Rafi)</a>
-                    <a href="https://wa.me/6285161175387" target="_blank"><i class="fab fa-whatsapp"></i> Admin IT 3 (Razan)</a>
-                    <a href="https://wa.me/6282213635611" target="_blank"><i class="fab fa-whatsapp"></i> Keuangan 1 (Revitha)</a>
-                    <a href="https://wa.me/6281295534887" target="_blank"><i class="fab fa-whatsapp"></i> Keuangan 2 (Hima)</a>
                 </div>
             </div>
 
@@ -122,10 +123,11 @@
         </div>
         
         <div class="footer-bottom">
-            <p>&copy; 2025 Cemilkuy Indonesia. Dibuat dengan ❤️ oleh Admin IT Cemilkuy.</p>
+            <p>&copy; 2026 Cemilkuy Indonesia. Dibuat dengan ❤️ oleh Admin IT Cemilkuy.</p>
         </div>
     </footer>
     
+    <div id="cart-overlay" onclick="toggleCart()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998;"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
             <h3>Keranjang Jajan</h3>
@@ -209,51 +211,9 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script src="script.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const session = JSON.parse(localStorage.getItem('cemilkuy_session'));
-            const authContainer = document.getElementById('auth-container');
-            const userContainer = document.getElementById('user-container');
-            const userGreeting = document.getElementById('user-greeting');
-            const profileBtn = document.getElementById('profile-btn');
-            const profileText = document.getElementById('profile-text');
-
-            if (session) {
-                // User SUDAH Login
-                authContainer.style.display = 'none';
-                userContainer.style.display = 'flex';
-                
-                // Tampilkan Nama Depan
-                const firstName = session.name.split(' ')[0];
-                userGreeting.innerText = `Hai, ${firstName}`;
-                userGreeting.style.display = 'block';
-
-                // Cek Role untuk arah tombol Profil
-                if (session.role === 'member') {
-                    // Jika Member -> Ke dashboard-member.html (jika ada) atau tetap di sini
-                    profileBtn.href = '#'; 
-                    profileText.innerText = "Member";
-                } else {
-                    // Jika Seller/Admin -> Ke dashboard.html
-                    profileBtn.href = 'dashboard.html';
-                    profileText.innerText = "Toko Saya";
-                    profileBtn.innerHTML = '<i class="fas fa-store"></i> Toko Saya';
-                }
-
-                // Auto-fill nama di form checkout jika ada
-                const namaInput = document.getElementById('nama-pembeli');
-                const hpInput = document.getElementById('hp-pembeli');
-                if(namaInput) namaInput.value = session.name;
-                if(hpInput) hpInput.value = session.phone || '';
-
-            } else {
-                // User BELUM Login
-                authContainer.style.display = 'flex';
-                userContainer.style.display = 'none';
-            }
-        });
-    </script>
+    
 </body>
 </html>

@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- STYLE DASAR --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Open Sans', sans-serif; }
         body { background-color: #f4f6f9; display: flex; min-height: 100vh; }
         .sidebar { width: 260px; background: #343a40; color: #fff; display: flex; flex-direction: column; position: fixed; height: 100%; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 100; }
@@ -23,7 +22,7 @@
         .menu a:hover { background: rgba(255, 127, 80, 0.2); color: white; }
         .menu a.active { background: #FF7F50; color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .menu a i { width: 25px; margin-right: 10px; text-align: center; }
-        #menu-users { display: none; } 
+        #menu-users { display: none; }
         .content { margin-left: 260px; flex: 1; padding: 30px; width: 100%; }
         .header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
@@ -51,19 +50,14 @@
         th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: #333; }
         td { padding: 15px; border-bottom: 1px solid #dee2e6; color: #555; vertical-align: middle; }
         .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; background: #eee; }
-        .badge-pending { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
-        .badge-done { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
-        .row-completed { opacity: 0.6; background-color: #fafafa; } 
-        .check-container { display: block; position: relative; padding-left: 30px; margin-bottom: 12px; cursor: pointer; font-size: 22px; user-select: none; }
-        .check-container input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
-        .checkmark { position: absolute; top: 0; left: 0; height: 20px; width: 20px; background-color: #eee; border-radius: 4px; }
-        .check-container:hover input ~ .checkmark { background-color: #ccc; }
-        .check-container input:checked ~ .checkmark { background-color: #28a745; }
-        .checkmark:after { content: ""; position: absolute; display: none; }
-        .check-container input:checked ~ .checkmark:after { display: block; }
-        .check-container .checkmark:after { left: 7px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 3px 3px 0; transform: rotate(45deg); }
-        .check-container input:disabled ~ .checkmark { background-color: #ddd; cursor: not-allowed; }
-        .check-container input:disabled ~ .checkmark:after { display: none; }
+        .badge-pending, .badge-done, .badge-cancelled { 
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;
+        }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-done { background: #d4edda; color: #155724; }
+        .badge-cancelled { background: #f8d7da; color: #721c24; }
+        .row-completed { opacity: 0.6; background-color: #fafafa; }
         .wa-btn { display: inline-flex; align-items: center; gap: 5px; background: #e8f5e9; color: #25D366; text-decoration: none; padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; margin-top: 5px; border: 1px solid #25D366; transition: 0.2s; }
         .wa-btn:hover { background: #25D366; color: white; }
         .action-buttons { display: flex; gap: 5px; }
@@ -109,7 +103,6 @@
             <a onclick="showSection('overview', this)" class="active"><i class="fas fa-home"></i> Ringkasan</a>
             <a onclick="showSection('products', this)"><i class="fas fa-box"></i> Kelola Produk</a>
             <a onclick="showSection('orders', this)"><i class="fas fa-shopping-cart"></i> Pesanan Masuk</a>
-            <a onclick="showSection('wallet', this)"><i class="fas fa-wallet"></i> Dompet & Penarikan</a>
             <a onclick="showSection('users', this)" id="menu-users"><i class="fas fa-users-cog"></i> Kelola Pengguna</a>
             <a onclick="showSection('settings', this)"><i class="fas fa-cog"></i> Pengaturan Toko</a>
             <a href="index.html"><i class="fas fa-globe"></i> Lihat Website</a>
@@ -153,9 +146,6 @@
                         <button class="filter-btn" onclick="setFilter('pending')">Proses</button>
                         <button class="filter-btn" onclick="setFilter('completed')">Selesai</button>
                     </div>
-                    <button onclick="resetData()" class="btn-reset-data" id="btn-reset-data">
-                        <i class="fas fa-trash-alt"></i> Reset Semua Data
-                    </button>
                 </div>
                 <table width="100%">
                     <thead>
@@ -167,40 +157,21 @@
             </div>
         </div>
 
-        <div id="wallet" class="section">
-            <h1>Dompet & Komisi</h1><br>
-            <div class="wallet-card">
-                <h3 id="wallet-title">Saldo Bisa Ditarik</h3>
-                <h1 id="wallet-balance">Rp 0</h1>
-                <i class="fas fa-money-bill-wave wallet-icon"></i>
-                <button class="btn-withdraw" onclick="submitWithdraw()">Tarik Saldo</button>
-            </div>
-            <div class="table-container">
-                <h3 style="margin-bottom:15px;">Riwayat Penarikan/Setoran</h3>
-                <table width="100%">
-                    <thead><tr><th>Tanggal</th><th>Bank</th><th>No. Rekening</th><th>Nominal</th><th>Status</th></tr></thead>
-                    <tbody id="withdraw-table"></tbody>
-                </table>
-                <p id="empty-withdraw" style="text-align: center; padding: 20px; display: none;">Belum ada riwayat.</p>
-            </div>
-        </div>
 
         <div id="users" class="section">
             <h1>Kelola Pengguna</h1><br>
-            
             <div class="table-container">
                 <h3 style="margin-bottom:15px; color:#28a745;"><i class="fas fa-store"></i> Daftar Penjual (Mitra)</h3>
                 <table width="100%">
-                    <thead><tr><th>Nama & Kontak</th><th>Nama Toko</th><th>Tagihan Komisi</th><th>Aksi</th></tr></thead>
+                    <thead><tr><th>Nama & Kontak</th><th>Nama Toko</th><th>Username</th><th>Bergabung</th></tr></thead>
                     <tbody id="seller-table"></tbody>
                 </table>
                 <p id="empty-sellers" style="text-align: center; padding: 20px; display: none;">Belum ada penjual terdaftar.</p>
             </div>
-
             <div class="table-container">
                 <h3 style="margin-bottom:15px; color:#FF7F50;"><i class="fas fa-users"></i> Daftar Member (Pembeli)</h3>
                 <table width="100%">
-                    <thead><tr><th>Nama & Kontak</th><th>Username</th><th>Aksi</th></tr></thead>
+                    <thead><tr><th>Nama & Kontak</th><th>Username</th><th>Bergabung</th></tr></thead>
                     <tbody id="member-table"></tbody>
                 </table>
                 <p id="empty-members" style="text-align: center; padding: 20px; display: none;">Belum ada member terdaftar.</p>
@@ -210,24 +181,28 @@
         <div id="settings" class="section">
             <h1>Pengaturan Toko</h1><br>
             <div class="card" style="border-left: 5px solid #FF7F50; max-width: 500px;">
-                <h3><i class="fas fa-qrcode"></i> Upload QRIS Toko</h3>
-                <p style="margin-bottom: 20px; color: #666; font-size: 13px;">Upload gambar QRIS agar pembeli bisa membayar langsung ke rekening Anda.</p>
-                <div class="form-group">
-                    <label>Gambar QRIS (Scan/Screenshot)</label>
-                    <div class="drop-zone" id="qris-zone" onclick="document.getElementById('qris-file').click()">
-                        <i class="fas fa-cloud-upload-alt"></i><p>Klik atau Drop gambar QRIS disini</p>
-                        <input type="file" id="qris-file" accept="image/*" hidden onchange="handleQRIS(this.files)">
-                    </div>
-                    <input type="hidden" id="qris-base64">
-                    <div id="qris-preview-container" style="display:none; margin-top:15px; text-align:center;">
-                        <img id="qris-preview-img" src="" style="width:200px; border:1px solid #ddd; border-radius:10px;">
-                        <br>
-                        <button onclick="removeQRIS()" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; margin-top:10px; cursor:pointer;">Hapus</button>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn-save" onclick="saveSettings()">Simpan Pengaturan</button>
-                </div>
+                <h3 style="margin-bottom:15px;"><i class="fas fa-qrcode"></i> Upload QRIS Toko</h3>
+                <p style="color:#666; font-size:13px; margin-bottom:20px;">
+                    Upload gambar QRIS agar pembeli bisa membayar langsung ke rekening kamu.
+                </p>
+
+        <div id="qris-preview-section" style="display:none; text-align:center; margin-bottom:15px;">
+            <img id="qris-preview-img" src="" style="width:200px; border:1px solid #ddd; border-radius:10px;">
+            <p style="font-size:12px; color:#27ae60; margin-top:8px;">✅ QRIS sudah diupload</p>
+        </div>
+
+        <div class="form-group">
+            <label>Pilih Gambar QRIS</label>
+            <input type="file" id="qris-file" accept="image/*" onchange="previewQRIS(this)">
+            <div id="qris-new-preview" style="display:none; margin-top:10px; text-align:center;">
+                <img id="qris-new-img" style="width:200px; border:1px solid #ddd; border-radius:10px;">
+            </div>
+        </div>
+
+        <button class="btn-save" id="btn-save-qris" onclick="uploadQRIS()" 
+                style="background:#FF7F50; margin-top:10px;">
+            <i class="fas fa-upload"></i> Upload QRIS
+             </button>
             </div>
         </div>
     </div>
@@ -235,443 +210,46 @@
     <div id="product-modal" class="modal">
         <div class="modal-content">
             <h2 id="modal-title" style="border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">Tambah Produk</h2>
-            <input type="hidden" id="edit-id"> 
-            
-            <div class="form-group"><label>Nama Produk</label><input type="text" id="p-name" placeholder="Contoh: Keripik Pisang Coklat"></div>
-            <div class="form-group"><label>Kategori</label><select id="p-cat"><option value="Pedas">Pedas</option><option value="Manis">Manis</option><option value="Asin">Asin</option></select></div>
-            <div class="form-row-3">
-                <div class="form-group"><label>Harga (Rp)</label><input type="number" id="p-price" placeholder="15000"></div>
-                <div class="form-group"><label>Stok</label><input type="number" id="p-stock" placeholder="100"></div>
-                <div class="form-group"><label>Diskon (%)</label><input type="number" id="p-discount" placeholder="0"></div>
-            </div>
-
-            <div class="form-row-3" style="grid-template-columns: 1fr 1fr;">
-                <div class="form-group">
-                    <label>Tanggal Produksi</label>
-                    <input type="date" id="p-prod-date">
-                </div>
-                <div class="form-group">
-                    <label>Tanggal Kadaluwarsa</label>
-                    <input type="date" id="p-exp-date">
-                </div>
-            </div>
 
             <div class="form-group">
+                <label>Nama Produk</label>
+                <input type="text" id="prod-name" placeholder="Contoh: Keripik Pisang Coklat">
+            </div>
+            <div class="form-group">
+                <label>Kategori</label>
+                <select id="prod-category">
+                    <option value="Pedas">Pedas</option>
+                    <option value="Manis">Manis</option>
+                    <option value="Asin">Asin</option>
+                    <option value="gorengan">Gorengan</option>
+                    <option value="snack">Snack</option>
+                    <option value="minuman">Minuman</option>
+                </select>
+            </div>
+            <div class="form-row-3">
+                <div class="form-group"><label>Harga (Rp)</label><input type="number" id="prod-price" placeholder="15000"></div>
+                <div class="form-group"><label>Stok</label><input type="number" id="prod-stock" placeholder="100"></div>
+                <div class="form-group"><label>Diskon (%)</label><input type="number" id="prod-discount" placeholder="0"></div>
+            </div>
+            <div class="form-group">
                 <label>Foto Produk</label>
-                <div class="drop-zone" id="drop-zone" onclick="document.getElementById('p-file').click()">
-                    <i class="fas fa-cloud-upload-alt"></i><p>Klik disini atau Drag & Drop gambar</p>
-                    <input type="file" id="p-file" accept="image/*" hidden onchange="handleFile(this.files)">
-                </div>
-                <input type="hidden" id="p-img-base64">
-                <div id="preview-container">
-                    <img id="preview-img" src=""><span class="remove-img" onclick="removeImage()">Hapus Gambar</span>
+                <input type="file" id="prod-image" accept="image/*" onchange="previewImage(this)">
+                <div id="preview-container" style="display:none; margin-top:10px;">
+                    <img id="preview-img" style="max-width:100%; height:150px; object-fit:cover; border-radius:8px; border:1px solid #ddd;">
                 </div>
             </div>
-            <div class="form-group"><label>Deskripsi Singkat</label><textarea id="p-desc" placeholder="Jelaskan rasa dan keunggulan produk ini..."></textarea></div>
+            <div class="form-group">
+                <label>Deskripsi Singkat</label>
+                <textarea id="prod-desc" placeholder="Jelaskan rasa dan keunggulan produk ini..."></textarea>
+            </div>
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeModal()">Batal</button>
-                <button class="btn-save" onclick="saveProduct()">Simpan Produk</button>
+                <button class="btn-save" id="btn-save-product" onclick="simpanProduk()">Simpan Produk</button>
             </div>
         </div>
     </div>
 
-    <script>
-        // --- SECURITY CHECK (GATEKEEPER) ---
-        const session = JSON.parse(localStorage.getItem('cemilkuy_session'));
-        
-        if (!session) { 
-            alert("Silakan login terlebih dahulu!"); 
-            window.location.href = 'login.html'; 
-        }
-        else if (session.role === 'member') {
-            alert("Akses Ditolak! Halaman Dashboard hanya untuk Penjual.");
-            window.location.href = 'index.html'; 
-        }
-
-        document.getElementById('user-name').innerText = session.name;
-        document.getElementById('user-role').innerText = session.role === 'admin' ? "Administrator" : "Pemilik Toko";
-
-        if(session.role === 'admin') document.getElementById('menu-users').style.display = 'flex';
-        else document.getElementById('btn-reset-data').style.display = 'none';
-
-        let currentFilter = 'all'; 
-        let commissionToPay = 0; 
-        const adminFamily = ['admin', 'Razan', 'Fathan', 'Rafi']; 
-
-        // --- NAVIGATION LOGIC ---
-        function showSection(id, element) {
-            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.menu a').forEach(btn => btn.classList.remove('active'));
-            if(element) element.classList.add('active');
-        }
-
-        // --- DRAG & DROP LOGIC ---
-        const dropZone = document.getElementById('drop-zone');
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
-            dropZone.addEventListener(eName, e => { e.preventDefault(); e.stopPropagation(); });
-        });
-        dropZone.addEventListener('drop', e => handleFile(e.dataTransfer.files));
-
-        function handleFile(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.size > 2097152) return alert("Ukuran gambar maksimal 2MB!");
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onloadend = function() {
-                    document.getElementById('preview-img').src = reader.result;
-                    document.getElementById('p-img-base64').value = reader.result;
-                    document.getElementById('preview-container').style.display = 'block';
-                    document.getElementById('drop-zone').style.display = 'none';
-                }
-            }
-        }
-        function removeImage() {
-            document.getElementById('p-file').value = "";
-            document.getElementById('p-img-base64').value = "";
-            document.getElementById('preview-container').style.display = 'none';
-            document.getElementById('drop-zone').style.display = 'block';
-        }
-
-        // --- QRIS SETTINGS ---
-        function handleQRIS(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.size > 2097152) return alert("Ukuran gambar maksimal 2MB!");
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onloadend = function() {
-                    document.getElementById('qris-preview-img').src = reader.result;
-                    document.getElementById('qris-base64').value = reader.result;
-                    document.getElementById('qris-preview-container').style.display = 'block';
-                    document.getElementById('qris-zone').style.display = 'none';
-                }
-            }
-        }
-        function removeQRIS() {
-            document.getElementById('qris-file').value = "";
-            document.getElementById('qris-base64').value = "";
-            document.getElementById('qris-preview-container').style.display = 'none';
-            document.getElementById('qris-zone').style.display = 'block';
-        }
-        function saveSettings() {
-            const qrisImg = document.getElementById('qris-base64').value;
-            if(!qrisImg) return alert("Belum ada gambar QRIS.");
-            session.qris = qrisImg;
-            localStorage.setItem('cemilkuy_session', JSON.stringify(session));
-            let users = JSON.parse(localStorage.getItem('cemilkuy_users')) || [];
-            let userIdx = users.findIndex(u => u.username === session.username);
-            if(userIdx !== -1) {
-                users[userIdx].qris = qrisImg;
-                localStorage.setItem('cemilkuy_users', JSON.stringify(users));
-                alert("QRIS berhasil disimpan!");
-            }
-        }
-        if(session.qris) {
-            document.getElementById('qris-preview-img').src = session.qris;
-            document.getElementById('qris-base64').value = session.qris;
-            document.getElementById('qris-preview-container').style.display = 'block';
-            document.getElementById('qris-zone').style.display = 'none';
-        }
-
-        // --- FILTER & STATUS ---
-        function setFilter(status) {
-            currentFilter = status;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            loadData(); 
-        }
-
-        function toggleOrderStatus(id) {
-            let orders = JSON.parse(localStorage.getItem('cemilkuy_orders'));
-            let orderIndex = orders.findIndex(o => o.id == id);
-            if (orderIndex !== -1) {
-                if (orders[orderIndex].status === 'completed') {
-                    orders[orderIndex].status = 'pending';
-                } else {
-                    orders[orderIndex].status = 'completed';
-                }
-                localStorage.setItem('cemilkuy_orders', JSON.stringify(orders));
-                loadData(); 
-            }
-        }
-
-        // --- LOGIKA UTAMA (UPDATED: DATE FIELDS) ---
-        function loadData() {
-            const products = JSON.parse(localStorage.getItem('cemilkuy_products')) || [];
-            const orders = JSON.parse(localStorage.getItem('cemilkuy_orders')) || [];
-            const users = JSON.parse(localStorage.getItem('cemilkuy_users')) || [];
-            const withdrawals = JSON.parse(localStorage.getItem('cemilkuy_withdrawals')) || [];
-            
-            const pTable = document.getElementById('product-table');
-            const oTable = document.getElementById('order-table');
-            const wTable = document.getElementById('withdraw-table');
-            const sellerTable = document.getElementById('seller-table');
-            const memberTable = document.getElementById('member-table');
-            const emptySellers = document.getElementById('empty-sellers');
-            const emptyMembers = document.getElementById('empty-members');
-            
-            pTable.innerHTML = ""; oTable.innerHTML = ""; wTable.innerHTML = ""; 
-            sellerTable.innerHTML = ""; memberTable.innerHTML = "";
-
-            let totalRevenue = 0; 
-            let totalOrders = 0;
-            let totalStock = 0;
-            commissionToPay = 0; 
-
-            // 1. RENDER PRODUK
-            products.forEach(p => {
-                let isOwner = false;
-                if (session.role === 'admin') {
-                    if (adminFamily.includes(p.seller) || p.seller === session.username) isOwner = true;
-                } else {
-                    if (p.seller === session.username) isOwner = true;
-                }
-                if (isOwner) {
-                    totalStock += parseInt(p.stock);
-                    pTable.innerHTML += `<tr><td><img src="${p.image}" class="product-thumb" onerror="this.src='https://via.placeholder.com/50'"></td><td><b>${p.name}</b></td><td>${p.category || '-'}</td><td>Rp ${p.price.toLocaleString()}</td><td style="color:${p.stock < 10 ? 'red' : 'green'}; font-weight:bold;">${p.stock}</td><td><div class="action-buttons"><button class="btn-edit" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button><button class="btn-del" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button></div></td></tr>`;
-                }
-            });
-
-            // 2. RENDER PESANAN & HITUNG KOMISI
-            orders.slice().reverse().forEach(o => {
-                let isMine = false;
-                let itemsStr = [];
-                let orderDisplayTotal = 0; 
-                let status = o.status || 'pending'; 
-                if (currentFilter !== 'all' && currentFilter !== status) return; 
-
-                o.items.forEach(i => {
-                    let itemTotal = i.price * i.quantity;
-                    let isSoldByAdmin = adminFamily.includes(i.seller);
-
-                    if (session.role === 'admin') {
-                        isMine = true; 
-                        if (isSoldByAdmin) {
-                            totalRevenue += itemTotal;
-                            itemsStr.push(`${i.name} (My Stock)`);
-                            orderDisplayTotal += itemTotal;
-                        } else {
-                            let fee = itemTotal * 0.1;
-                            totalRevenue += fee; 
-                            itemsStr.push(`${i.name} (Fee 10% dari Mitra)`);
-                            orderDisplayTotal += fee;
-                        }
-                    } 
-                    else if (i.seller === session.username) {
-                        isMine = true;
-                        totalRevenue += itemTotal;
-                        orderDisplayTotal += itemTotal;
-                        
-                        if (!i.commissionPaid) {
-                            let fee = itemTotal * 0.1;
-                            commissionToPay += fee;
-                        }
-                        itemsStr.push(`${i.name} (${i.quantity}x)`);
-                    }
-                });
-
-                if (isMine && itemsStr.length > 0) { 
-                    totalOrders++;
-                    let rawPhone = o.phone.toString().replace(/\D/g, ''); 
-                    if (rawPhone.startsWith('0')) rawPhone = '62' + rawPhone.substring(1);
-                    let linkWA = `https://wa.me/${rawPhone}`;
-                    let rowClass = status === 'completed' ? 'row-completed' : '';
-                    let badge = status === 'completed' ? '<span class="badge-done">Selesai</span>' : '<span class="badge-pending">Proses</span>';
-                    let isChecked = status === 'completed' ? 'checked' : '';
-
-                    oTable.innerHTML += `<tr class="${rowClass}"><td><label class="check-container"><input type="checkbox" ${isChecked} onchange="toggleOrderStatus(${o.id})"><span class="checkmark"></span></label>${badge}</td><td>${o.date.split(',')[0]}</td><td><b>${o.customer}</b><br><a href="${linkWA}" target="_blank" class="wa-btn">Hubungi</a></td><td><small>${itemsStr.join(', ')}</small></td><td style="color:green; font-weight:bold;">Rp ${orderDisplayTotal.toLocaleString('id-ID')}</td></tr>`;
-                }
-            });
-
-            document.getElementById('ord').innerText = totalOrders;
-            document.getElementById('stk').innerText = totalStock;
-
-            // 3. UI ROLE ADMIN VS SELLER
-            if (session.role === 'admin') {
-                document.getElementById('rev').innerText = "Rp " + totalRevenue.toLocaleString('id-ID'); 
-                document.getElementById('rev-desc').innerText = "Total Profit (Jualan Sendiri + Komisi)";
-                document.getElementById('wallet-title').innerText = "Total Akumulasi Pendapatan";
-                document.getElementById('wallet-balance').innerText = "Rp " + totalRevenue.toLocaleString('id-ID');
-                document.querySelector('.btn-withdraw').style.display = 'none'; 
-            } else {
-                document.getElementById('rev').innerText = "Rp " + totalRevenue.toLocaleString('id-ID'); 
-                document.getElementById('rev-desc').innerText = "Omset Kotor (Belum Setor Admin)";
-                document.getElementById('wallet-title').innerText = "Wajib Setor ke Admin (10%)";
-                document.getElementById('wallet-balance').innerText = "Rp " + commissionToPay.toLocaleString('id-ID');
-                const btnWd = document.querySelector('.btn-withdraw');
-                btnWd.innerText = "Setor Komisi";
-                btnWd.style.display = 'inline-block';
-            }
-
-            if (totalOrders === 0) document.getElementById('empty-orders').style.display = 'block';
-
-            // 4. RENDER WITHDRAWAL HISTORY
-            let showWithdraw = false;
-            withdrawals.slice().reverse().forEach((w) => {
-                if (session.role === 'admin' || w.username === session.username) {
-                    showWithdraw = true;
-                    let color = w.status === 'Selesai' ? 'green' : (w.status === 'Menunggu Admin' ? '#ff9800' : 'red');
-                    wTable.innerHTML += `<tr><td>${w.date}</td><td><b>${w.bank}</b><br><small>${w.username}</small></td><td>${w.account}</td><td style="font-weight:bold;">Rp ${parseInt(w.amount).toLocaleString('id-ID')}</td><td style="color:${color}; font-weight:bold; text-transform:uppercase;">${w.status}</td></tr>`;
-                }
-            });
-            if (!showWithdraw) document.getElementById('empty-withdraw').style.display = 'block'; else document.getElementById('empty-withdraw').style.display = 'none';
-
-            // 5. RENDER USERS (ADMIN ONLY)
-            if(session.role === 'admin') {
-                let sellerCount = 0; let memberCount = 0;
-                users.forEach((u, index) => {
-                    let deleteBtn = `<button class="btn-del" onclick="deleteUser(${index})"><i class="fas fa-trash"></i></button>`;
-                    if (u.role === 'seller') {
-                        sellerCount++;
-                        let debt = 0;
-                        orders.forEach(o => {
-                            o.items.forEach(i => {
-                                if (i.seller === u.username && !i.commissionPaid) {
-                                    debt += (i.price * i.quantity * 0.1);
-                                }
-                            });
-                        });
-                        
-                        let resetBtn = debt > 0 
-                            ? `<button class="btn-pay" onclick="resetCommission('${u.username}')">Lunas</button>` 
-                            : `<span style="color:green;font-size:11px;">Lunas</span>`;
-
-                        sellerTable.innerHTML += `<tr><td><b>${u.name}</b><br><small>${u.phone || '-'}</small></td><td>${u.shop}</td><td><span style="color:red;font-weight:bold;">Rp ${debt.toLocaleString('id-ID')}</span></td><td>${resetBtn} ${deleteBtn}</td></tr>`;
-                    } else if (u.role === 'member') {
-                        memberCount++;
-                        memberTable.innerHTML += `<tr><td><b>${u.name}</b><br><small>${u.phone || '-'}</small></td><td>${u.username}</td><td>${deleteBtn}</td></tr>`;
-                    }
-                });
-                if(sellerCount === 0) emptySellers.style.display = 'block'; else emptySellers.style.display = 'none';
-                if(memberCount === 0) emptyMembers.style.display = 'block'; else emptyMembers.style.display = 'none';
-            }
-        }
-
-        // --- BUTTON HANDLERS ---
-        function submitWithdraw() {
-            if (session.role === 'seller') {
-                if(commissionToPay <= 0) return alert("Tidak ada tagihan komisi saat ini.");
-                alert(`INSTRUKSI TRANSFER:\n\nSilakan transfer sebesar Rp ${commissionToPay.toLocaleString('id-ID')} ke:\n\n🏦 BCA: 123456\n👤 Atas Nama: Admin Cemilkuy\n\n⚠️ PENTING: Screenshot bukti transfer dan kirim ke WhatsApp Admin untuk konfirmasi pelunasan.`);
-                let msg = `Halo Admin, saya ${session.name} (Toko: ${session.shop}) ingin konfirmasi pembayaran komisi sebesar Rp ${commissionToPay.toLocaleString('id-ID')}. Berikut buktinya (Lampirkan Foto)`;
-                window.open(`https://wa.me/6285810533390?text=${msg}`, '_blank');
-                let withdrawals = JSON.parse(localStorage.getItem('cemilkuy_withdrawals')) || [];
-                withdrawals.push({ 
-                    id: Date.now(), username: session.username, bank: "Setor Komisi", account: "BCA 123456", 
-                    amount: commissionToPay, date: new Date().toLocaleString(), status: 'Menunggu Admin' 
-                });
-                localStorage.setItem('cemilkuy_withdrawals', JSON.stringify(withdrawals));
-                loadData();
-            }
-        }
-
-        function resetCommission(sellerUsername) {
-            if(!confirm(`Yakin ingin mereset tagihan untuk ${sellerUsername}? Pastikan Anda sudah menerima transfer.`)) return;
-            let orders = JSON.parse(localStorage.getItem('cemilkuy_orders')) || [];
-            orders.forEach(o => {
-                o.items.forEach(i => {
-                    if (i.seller === sellerUsername) {
-                        i.commissionPaid = true;
-                    }
-                });
-            });
-            localStorage.setItem('cemilkuy_orders', JSON.stringify(orders));
-            let withdrawals = JSON.parse(localStorage.getItem('cemilkuy_withdrawals')) || [];
-            withdrawals.forEach(w => {
-                if (w.username === sellerUsername && w.status === 'Menunggu Admin') {
-                    w.status = 'Selesai';
-                }
-            });
-            localStorage.setItem('cemilkuy_withdrawals', JSON.stringify(withdrawals));
-            alert("Tagihan berhasil di-reset dan status riwayat diperbarui.");
-            loadData();
-        }
-
-        // --- CRUD STANDARD (UPDATED WITH DATES) ---
-        function openModal() { 
-            document.getElementById('product-modal').style.display = 'flex'; 
-            document.getElementById('modal-title').innerText = "Tambah Produk"; 
-            document.getElementById('edit-id').value = ""; 
-            document.getElementById('p-name').value = ""; 
-            document.getElementById('p-price').value = ""; 
-            document.getElementById('p-stock').value = ""; 
-            document.getElementById('p-discount').value = ""; 
-            document.getElementById('p-desc').value = ""; 
-            document.getElementById('p-prod-date').value = ""; 
-            document.getElementById('p-exp-date').value = ""; 
-            removeImage(); 
-        }
-        
-        function closeModal() { document.getElementById('product-modal').style.display = 'none'; }
-        
-        function saveProduct() { 
-            let products = JSON.parse(localStorage.getItem('cemilkuy_products')) || []; 
-            const id = document.getElementById('edit-id').value; 
-            const imgData = document.getElementById('p-img-base64').value; 
-            
-            const prodDate = document.getElementById('p-prod-date').value;
-            const expDate = document.getElementById('p-exp-date').value;
-
-            const newData = { 
-                id: id ? parseInt(id) : Date.now(), 
-                seller: session.username, 
-                shop: session.shop || "Mitra", 
-                name: document.getElementById('p-name').value, 
-                category: document.getElementById('p-cat').value, 
-                price: parseInt(document.getElementById('p-price').value), 
-                stock: parseInt(document.getElementById('p-stock').value), 
-                discount: parseInt(document.getElementById('p-discount').value) || 0, 
-                description: document.getElementById('p-desc').value, 
-                image: imgData || "gambar/default.jpg", 
-                rating: 5.0,
-                productionDate: prodDate,
-                expiryDate: expDate
-            }; 
-
-            if(!newData.name || !newData.price) return alert("Isi data produk minimal Nama dan Harga!"); 
-            
-            if (id) { 
-                const idx = products.findIndex(p => p.id == id); 
-                if(idx !== -1) products[idx] = {...products[idx], ...newData}; 
-            } else { 
-                products.push(newData); 
-            } 
-            
-            localStorage.setItem('cemilkuy_products', JSON.stringify(products)); 
-            closeModal(); 
-            loadData(); 
-        }
-
-        function editProduct(id) { 
-            const p = JSON.parse(localStorage.getItem('cemilkuy_products')).find(x => x.id === id); 
-            if(p) { 
-                openModal(); 
-                document.getElementById('modal-title').innerText = "Edit Produk"; 
-                document.getElementById('edit-id').value = p.id; 
-                document.getElementById('p-name').value = p.name; 
-                document.getElementById('p-price').value = p.price; 
-                document.getElementById('p-stock').value = p.stock; 
-                document.getElementById('p-discount').value = p.discount || 0; 
-                document.getElementById('p-desc').value = p.description; 
-                document.getElementById('p-prod-date').value = p.productionDate || "";
-                document.getElementById('p-exp-date').value = p.expiryDate || "";
-
-                if(p.image.startsWith('data:')) { 
-                    document.getElementById('p-img-base64').value = p.image; 
-                    document.getElementById('preview-img').src = p.image; 
-                    document.getElementById('preview-container').style.display = 'block'; 
-                    document.getElementById('drop-zone').style.display = 'none'; 
-                } else removeImage(); 
-            } 
-        }
-
-        function deleteProduct(id) { if(confirm("Hapus?")) { let p = JSON.parse(localStorage.getItem('cemilkuy_products')).filter(x => x.id !== id); localStorage.setItem('cemilkuy_products', JSON.stringify(p)); loadData(); } }
-        function deleteUser(idx) { if(confirm("Hapus user?")) { let u = JSON.parse(localStorage.getItem('cemilkuy_users')); let p = JSON.parse(localStorage.getItem('cemilkuy_products')) || []; const targetUser = u[idx].username; const newP = p.filter(prod => prod.seller !== targetUser); localStorage.setItem('cemilkuy_products', JSON.stringify(newP)); u.splice(idx, 1); localStorage.setItem('cemilkuy_users', JSON.stringify(u)); loadData(); } }
-        function resetData() { if(confirm("RESET SEMUA?")) { localStorage.removeItem('cemilkuy_orders'); localStorage.removeItem('cemilkuy_withdrawals'); alert("Data Reset!"); location.reload(); } }
-        function logout() { localStorage.removeItem('cemilkuy_session'); window.location.href = 'login.html'; }
-
-        loadData();
-    </script>
+    <script src="api.js"></script>
+    <script src="dashboard-script.js"></script>
 </body>
 </html>
