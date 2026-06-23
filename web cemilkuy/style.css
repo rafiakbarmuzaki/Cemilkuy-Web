@@ -172,8 +172,8 @@ footer {
    6. SIDEBAR & MODAL
    ========================================= */
 .cart-sidebar {
-    position: fixed; top: 0; right: -400px; width: 400px; height: 100vh;
-    background: white; z-index: 2000; transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    position: fixed; top: 0; right: -400px; width: 400px; height: 100%; z-index: 9999;
+    background: white; transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     box-shadow: -10px 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column;
 }
 .cart-sidebar.active { right: 0; }
@@ -191,7 +191,7 @@ footer {
 .checkout-btn:hover { background: var(--primary); transform: scale(1.02); }
 
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; backdrop-filter: blur(5px); }
-.modal-content { background: white; margin: 5% auto; padding: 40px; width: 90%; max-width: 450px; border-radius: 30px; position: relative; animation: popUp 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+.modal-content { background: white; margin: 5% auto; padding: 40px; width: 90%; max-width: 450px; border-radius: 30px; max-height: 90vh; overflow-y: auto; position: relative; animation: popUp 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
 @keyframes popUp { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
 .close-modal { position: absolute; right: 20px; top: 20px; font-size: 28px; cursor: pointer; color: #999; }
 .form-group { margin-bottom: 15px; }
@@ -239,7 +239,7 @@ footer {
     .footer-col { width: 100%; text-align: center; }
     
     .cart-sidebar { width: 85%; }
-    .modal-content { width: 90%; margin: 20% auto; padding: 20px; }
+    .modal-content { width: 90%; margin: 20% auto; padding: 20px; max-height: 90vh; overflow-y: auto; }
     .category-tabs { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
     .cat-btn { flex: 0 0 auto; }
 }

@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- GLOBAL STYLE --- */
         body { 
             background: linear-gradient(135deg, #FF7F50 0%, #ff9f43 100%); 
             display: flex; justify-content: center; align-items: center; 
@@ -20,7 +19,6 @@
             border-radius: 30px; backdrop-filter: blur(5px); transition: 0.3s;
         }
         .btn-back-home:hover { background: white; color: #FF7F50; }
-        
         .login-box { 
             background: white; padding: 40px; border-radius: 20px; width: 350px; text-align: center; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
@@ -31,32 +29,29 @@
             box-shadow: 0 5px 15px rgba(255, 127, 80, 0.2);
         }
         h2 { font-family: 'Fredoka One', cursive; margin: 0 0 25px; color: #333; letter-spacing: 1px; }
-        
         .input-group { position: relative; margin-bottom: 15px; text-align: left; }
         .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; width: 20px; text-align: center; }
-        
         .toggle-password {
             position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
             cursor: pointer; color: #aaa; left: auto;
         }
-
         input { 
             width: 100%; padding: 12px 12px 12px 45px; margin: 0; border: 2px solid #f1f2f6; 
             border-radius: 10px; box-sizing: border-box; font-size: 14px; transition: 0.3s; background: #fafafa;
         }
         input:focus { border-color: #FF7F50; outline: none; background: white; }
-        
         .btn-login { 
             width: 100%; padding: 12px; background: #FF7F50; color: white; border: none; 
             border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; 
             transition: 0.3s; margin-top: 15px; box-shadow: 0 5px 15px rgba(255, 127, 80, 0.3);
         }
         .btn-login:hover { background: #e06b3e; transform: translateY(-2px); }
-        
+        .btn-login:disabled { background: #ccc; cursor: not-allowed; transform: none; }
         .links { margin-top: 25px; font-size: 13px; color: #666; display: flex; flex-direction: column; gap: 8px; }
         .links a { color: #FF7F50; text-decoration: none; font-weight: bold; }
         .links a:hover { text-decoration: underline; }
         .divider { border-top: 1px solid #eee; margin: 10px 0; }
+        .error-msg { color: #dc3545; font-size: 13px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -78,97 +73,105 @@
             <i class="fas fa-eye toggle-password" onclick="togglePass()"></i>
         </div>
 
-        <button class="btn-login" onclick="login()">Masuk Sekarang</button>
+        <p class="error-msg" id="error-msg"></p>
+
+        <button class="btn-login" id="btn-login" onclick="login()">Masuk Sekarang</button>
         
         <div class="links">
             <p>Belum punya akun? <a href="register-user.html">Daftar Member</a></p>
+            <p>Lupa password? <a href="forgot-password.html">Klik disini</a></p>
             <div class="divider"></div>
             <p>Ingin jualan? <a href="register.html">Buka Toko Disini</a></p>
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        // --- 1. SETTING ADMIN ---
-        const latestAdmins = [
-            { username: "Razan", password: "Razan123", role: "admin", name: "Razan (CEO)", shop: "Pusat HQ", phone: "085161175387" },
-            { username: "Fathan", password: "Batak123", role: "admin", name: "Fathan (CEO)", shop: "Pusat Ops", phone: "085810533390" },
-            { username: "Rafi", password: "Rabar123", role: "admin", name: "Rafi (CEO)", shop: "Pusat Fin", phone: "081818862411" },
-            { username: "Revitha", password: "Revitha123", role: "admin", name: "Revitha (Management)", shop: "Pusat Management", phone: "082213635611"},
-            { username: "Hima", password: "Hima123", role: "admin", name: "Hima (Management)", shop: "Pusat Management", phone: "081295534887"},
-        ];
-
-        function refreshAdminData() {
-            localStorage.setItem('cemilkuy_admins', JSON.stringify(latestAdmins));
+        // Jika sudah login, langsung redirect
+        if (getSession()) {
+            const s = getSession();
+            if (s.role === 'admin' || s.role === 'seller') window.location.href = 'dashboard.html';
+            else window.location.href = 'index.html';
         }
 
-        // --- 2. LOGIKA LOGIN ---
-        function login() {
-            const u = document.getElementById('username').value.trim(); 
-            const p = document.getElementById('password').value.trim();
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const btn = document.getElementById('btn-login');
+            const errorMsg = document.getElementById('error-msg');
 
-            if (!u || !p) {
-                alert("Username dan Password tidak boleh kosong!");
+            if (!username || !password) {
+                tampilError('Username dan Password tidak boleh kosong!');
                 return;
             }
 
-            refreshAdminData();
+            // Tampilkan loading di tombol
+            btn.disabled = true;
+            btn.innerText = 'Memproses...';
+            errorMsg.style.display = 'none';
 
-            // Cek Admin
-            const admins = JSON.parse(localStorage.getItem('cemilkuy_admins'));
-            const foundAdmin = admins.find(acc => acc.username === u && acc.password === p);
+            try {
+                const data = await Auth.login(username, password);
 
-            if (foundAdmin) {
-                localStorage.setItem('cemilkuy_session', JSON.stringify(foundAdmin));
-                alert(`Selamat datang, Boss ${foundAdmin.name}!`);
-                window.location.href = 'dashboard.html';
-                return; 
-            }
+                if (data.success) {
+                    // Simpan token dan data user ke localStorage
+                    saveSession(data.token, data.data);
 
-            // Cek Users (Bisa Penjual atau Member/Pembeli)
-            const users = JSON.parse(localStorage.getItem('cemilkuy_users')) || [];
-            const foundUser = users.find(user => user.username === u && user.password === p);
-
-            if (foundUser) {
-                localStorage.setItem('cemilkuy_session', JSON.stringify(foundUser));
-                
-                // Logika pembeda sapaan berdasarkan Role
-                if (foundUser.role === 'seller') {
-                    alert(`Halo Juragan ${foundUser.name}, selamat berjualan!`);
-                    window.location.href = 'dashboard.html'; // Nanti bisa diganti ke dashboard-seller.html
+                    const role = data.data.role;
+                    if (role === 'admin') {
+                        alert(`Selamat datang, Boss ${data.data.full_name}!`);
+                        window.location.href = 'dashboard.html';
+                    } else if (role === 'seller') {
+                        alert(`Halo Juragan ${data.data.full_name}, selamat berjualan!`);
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        alert(`Halo Kak ${data.data.full_name}, selamat datang di Cemilkuy!`);
+                        window.location.href = 'index.html';
+                    }
                 } else {
-                    alert(`Halo Kak ${foundUser.name}, selamat datang di Cemilkuy!`);
-                    window.location.href = 'index.html'; // Pembeli biasanya masuk ke halaman utama belanja
+                    tampilError(data.message || 'Username atau Password salah!');
+                    goyang();
                 }
-                
-            } else {
-                alert("Username atau Password salah! (Cek huruf besar/kecil)");
-                
-                // Animasi getar kalau salah
-                const box = document.querySelector('.login-box');
-                box.animate([
-                    { transform: 'translateX(0px)' }, 
-                    { transform: 'translateX(10px)' }, 
-                    { transform: 'translateX(-10px)' }, 
-                    { transform: 'translateX(0px)' }
-                ], { duration: 300 });
+            } catch (err) {
+                tampilError('Tidak bisa terhubung ke server. Pastikan backend sudah berjalan.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Masuk Sekarang';
             }
+        }
+
+        function tampilError(pesan) {
+            const el = document.getElementById('error-msg');
+            el.innerText = pesan;
+            el.style.display = 'block';
+        }
+
+        function goyang() {
+            const box = document.querySelector('.login-box');
+            box.animate([
+                { transform: 'translateX(0px)' }, 
+                { transform: 'translateX(10px)' }, 
+                { transform: 'translateX(-10px)' }, 
+                { transform: 'translateX(0px)' }
+            ], { duration: 300 });
         }
 
         function togglePass() {
             const passInput = document.getElementById('password');
             const icon = document.querySelector('.toggle-password');
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
-                passInput.type = "password";
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                passInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
-        
-        refreshAdminData();
+
+        // Login juga bisa dengan tekan Enter
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') login();
+        });
     </script>
 </body>
 </html>

@@ -6,9 +6,7 @@
     <title>Daftar Akun - Cemilkuy</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        /* Menggunakan style yang sama agar konsisten */
         body { 
             background: linear-gradient(135deg, #FF7F50 0%, #ff9f43 100%); 
             display: flex; justify-content: center; align-items: center; 
@@ -23,10 +21,7 @@
         .register-box { 
             background: white; padding: 40px; border-radius: 20px; width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
-        .login-logo {
-            width: 80px; height: 80px; object-fit: cover; border-radius: 50%;
-            border: 3px solid #FF7F50; padding: 3px; background: white; margin-bottom: 10px;
-        }
+        .login-logo { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 3px solid #FF7F50; padding: 3px; background: white; margin-bottom: 10px; }
         h2 { font-family: 'Fredoka One', cursive; margin: 0 0 5px; color: #333; letter-spacing: 1px; }
         p.subtitle { margin: 0 0 20px; color: #777; font-size: 13px; }
         .input-group { position: relative; margin-bottom: 12px; }
@@ -41,8 +36,10 @@
             border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-top: 10px;
         }
         .btn-register:hover { background: #e06b3e; transform: translateY(-2px); }
+        .btn-register:disabled { background: #ccc; cursor: not-allowed; transform: none; }
         .links { margin-top: 20px; font-size: 13px; color: #666; }
         .links a { color: #FF7F50; text-decoration: none; font-weight: bold; }
+        .error-msg { color: #dc3545; font-size: 13px; margin-top: 8px; display: none; }
     </style>
 </head>
 <body>
@@ -56,23 +53,24 @@
         
         <div class="input-group">
             <i class="fas fa-user-circle"></i>
-            <input type="text" id="name" placeholder="Nama Lengkap">
+            <input type="text" id="full_name" placeholder="Nama Lengkap">
         </div>
-        
         <div class="input-group">
             <i class="fab fa-whatsapp"></i>
-            <input type="number" id="phone" placeholder="Nomor WhatsApp">
+            <input type="text" id="phone" placeholder="Nomor WhatsApp">
         </div>
         <div class="input-group">
             <i class="fas fa-at"></i>
-            <input type="text" id="user" placeholder="Username (Isi dengan NIM)">
+            <input type="text" id="username" placeholder="Username">
         </div>
         <div class="input-group">
             <i class="fas fa-lock"></i>
-            <input type="password" id="pass" placeholder="Password">
+            <input type="password" id="password" placeholder="Password (min. 6 karakter)">
         </div>
 
-        <button class="btn-register" onclick="registerUser()">Daftar Member</button>
+        <p class="error-msg" id="error-msg"></p>
+
+        <button class="btn-register" id="btn-register" onclick="registerUser()">Daftar Member</button>
         
         <div class="links">
             <p>Sudah punya akun? <a href="login.html">Login disini</a></p>
@@ -80,47 +78,54 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        function registerUser() {
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const user = document.getElementById('user').value;
-            const pass = document.getElementById('pass').value;
+        async function registerUser() {
+            const full_name = document.getElementById('full_name').value.trim();
+            const phone     = document.getElementById('phone').value.trim();
+            const username  = document.getElementById('username').value.trim();
+            const password  = document.getElementById('password').value.trim();
+            const btn       = document.getElementById('btn-register');
+            const errorMsg  = document.getElementById('error-msg');
 
-            if(!name || !phone || !user || !pass) {
-                alert("Mohon isi semua data!");
+            if (!full_name || !phone || !username || !password) {
+                tampilError('Mohon isi semua data!');
                 return;
             }
 
-            // Ambil data user yang ada (Gabung dengan data penjual di satu database localStorage)
-            let users = JSON.parse(localStorage.getItem('cemilkuy_users')) || [];
-            
-            // Cek Username kembar
-            if(users.find(u => u.username === user)) {
-                alert("Username sudah dipakai. Silakan cari yang lain!");
+            if (password.length < 6) {
+                tampilError('Password minimal 6 karakter!');
                 return;
             }
 
-            // SIMPAN DATA SEBAGAI MEMBER
-            users.push({ 
-                name: name, 
-                shop: "-", // Member tidak punya toko
-                phone: phone, 
-                username: user, 
-                password: pass, 
-                role: 'member' // <-- PENTING: Role dibedakan jadi member
-            });
-            
-            localStorage.setItem('cemilkuy_users', JSON.stringify(users));
-            
-            const btn = document.querySelector('.btn-register');
-            btn.innerText = "Mendaftarkan...";
             btn.disabled = true;
+            btn.innerText = 'Mendaftarkan...';
+            errorMsg.style.display = 'none';
 
-            setTimeout(() => {
-                alert("Akun berhasil dibuat! Silakan Login.");
-                window.location.href = 'login.html';
-            }, 1000);
+            try {
+                const data = await Auth.register({
+                    full_name, phone, username, password,
+                    role: 'member'
+                });
+
+                if (data.success) {
+                    alert('Akun berhasil dibuat! Silakan Login.');
+                    window.location.href = 'login.html';
+                } else {
+                    tampilError(data.message || 'Pendaftaran gagal.');
+                }
+            } catch (err) {
+                tampilError('Tidak bisa terhubung ke server. Pastikan backend sudah berjalan.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Daftar Member';
+            }
+        }
+
+        function tampilError(pesan) {
+            const el = document.getElementById('error-msg');
+            el.innerText = pesan;
+            el.style.display = 'block';
         }
     </script>
 </body>
