@@ -431,27 +431,29 @@ async function bukaRatingDariOrder(orderId) {
 }
 
 function tampilkanPilihanProdukRating(items) {
-    const historyModal = document.getElementById('history-modal');
-    const modalContent = historyModal.querySelector('.modal-content');
+    const listEl = document.getElementById('product-select-list');
 
-    modalContent.innerHTML = `
-        <span class="close-modal" onclick="closeHistory()">&times;</span>
-        <h2 style="text-align:center; margin-bottom:20px;">Pilih Produk untuk Dinilai</h2>
-        <div>
-            ${items.map(item => `
-                <div style="border:1px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; display:flex; align-items:center; gap:12px;">
-                    <img src="${item.image ? 'http://localhost:3000' + item.image : 'https://via.placeholder.com/50'}" 
-                         style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
-                    <div style="flex:1;">
-                        <div style="font-weight:bold; font-size:14px;">${item.product_name}</div>
-                        <div style="font-size:12px; color:#888;">Jumlah: ${item.quantity}</div>
-                    </div>
-                    <button onclick="pilihProdukUntukRating(${item.product_id}, '${item.product_name.replace(/'/g, "\\'")}')" 
-                            class="btn-rate">
-                        <i class="fas fa-star"></i> Nilai
-                    </button>
-                </div>`).join('')}
-        </div>`;
+    listEl.innerHTML = items.map(item => `
+        <div style="border:1px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; display:flex; align-items:center; gap:12px;">
+            <img src="${item.image ? 'http://localhost:3000' + item.image : 'https://via.placeholder.com/50'}" 
+                 style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
+            <div style="flex:1;">
+                <div style="font-weight:bold; font-size:14px;">${item.product_name}</div>
+                <div style="font-size:12px; color:#888;">Jumlah: ${item.quantity}</div>
+            </div>
+            <button onclick="pilihProdukUntukRating(${item.product_id}, '${item.product_name.replace(/'/g, "\\'")}')" 
+                    class="btn-rate">
+                <i class="fas fa-star"></i> Nilai
+            </button>
+        </div>`).join('');
+
+    document.getElementById('history-modal').style.display = 'none';
+    document.getElementById('product-select-modal').style.display = 'flex';
+}
+
+function closeProductSelect() {
+    const modal = document.getElementById('product-select-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 function pilihProdukUntukRating(productId, productName) {
@@ -459,7 +461,7 @@ function pilihProdukUntukRating(productId, productName) {
     currentRateVal = 0;
 
     document.getElementById('rating-product-name').innerText = productName;
-    document.getElementById('history-modal').style.display = 'none';
+    document.getElementById('product-select-modal').style.display = 'none';
     document.getElementById('rating-modal').style.display = 'flex';
 }
 
