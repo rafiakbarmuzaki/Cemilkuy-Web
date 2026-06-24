@@ -224,7 +224,16 @@ router.delete('/:id', verifyToken, checkRole('seller', 'admin'), async (req, res
             });
         }
 
-        await db.execute('DELETE FROM products WHERE product_id = ?', [productId]);
+        // Coba hapus dulu, kalau gagal karena ada riwayat pesanan, sembunyikan saja
+        try {
+            await db.execute('DELETE FROM products WHERE product_id = ?', [productId]);
+        } catch (err) {
+            if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+                await db.execute('UPDATE products SET is_deleted = TRUE, stock = 0 WHERE product_id = ?', [productId]);
+            } else {
+                throw err;
+            }
+        }
 
         res.json({ success: true, message: 'Produk berhasil dihapus' });
 
