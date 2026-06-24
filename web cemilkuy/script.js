@@ -403,11 +403,42 @@ async function openHistory() {
                     Rp ${parseInt(order.total_price).toLocaleString('id-ID')}
                 </div>
                 <div style="font-size:12px; color:#666; margin-top:3px;">📍 ${order.delivery_address}</div>
+                ${order.status === 'completed' ? `
+                    <button onclick="bukaRatingDariOrder(${order.order_id})" class="btn-rate" style="margin-top:10px;">
+                        <i class="fas fa-star"></i> Beri Rating
+                    </button>` : ''}
             </div>`).join('');
 
     } catch (err) {
         historyList.innerHTML = '<p style="text-align:center; color:#dc3545;">Gagal memuat riwayat.</p>';
     }
+}
+
+async function bukaRatingDariOrder(orderId) {
+    try {
+        const token = localStorage.getItem('cemilkuy_token');
+        const res = await fetch(`${API_URL}/orders/${orderId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success && data.data.items.length > 0) {
+            const firstItem = data.data.items[0];
+            currentRateId = firstItem.product_id;
+            currentRateVal = 0;
+
+            document.getElementById('rating-product-name').innerText = firstItem.product_name;
+            document.getElementById('history-modal').style.display = 'none';
+            document.getElementById('rating-modal').style.display = 'flex';
+        }
+    } catch (err) {
+        alert('Gagal memuat detail pesanan.');
+    }
+}
+
+function closeHistory() {
+    const modal = document.getElementById('history-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 function closeHistory() {
