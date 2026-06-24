@@ -15,16 +15,29 @@ const upload = require('../middleware/upload');
 // ─────────────────────────────────────────────
 router.get('/', async (req, res) => {
     try {
-        // Ambil parameter dari URL query
         const search = req.query.search || '';
         const category = req.query.category || '';
-        const page = parseInt(req.query.page) || 1;    // halaman ke berapa
-        const limit = parseInt(req.query.limit) || 12; // berapa item per halaman
-        const offset = (page - 1) * limit;             // lewati berapa item
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 12;
+        const offset = (page - 1) * limit;
 
-        // Buat query SQL dengan kondisi dinamis
-        let whereClause = 'WHERE p.stock > 0'; // hanya tampilkan yang masih ada stok
-        let params = [];
+        // Cek apakah ada token (untuk Kelola Produk di dashboard seller)
+        let seller_id = null;
+        const authHeader = req.headers['authorization'];
+        if (authHeader) {
+            try {
+                const token = authHeader.split(' ')[1];
+                const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
+                if (decoded.role === 'seller') seller_id = decoded.user_id;
+            } catch (e) {
+                // Token invalid, abaikan saja (tetap tampilkan produk publik)
+            }
+        }
+
+        let whereClause = seller_id 
+            ? 'WHERE p.seller_id = ? AND p.is_deleted = FALSE'
+            : 'WHERE p.stock > 0 AND p.is_deleted = FALSE';
+        let params = seller_id ? [seller_id] : [];
 
         if (search) {
             whereClause += ' AND (p.name LIKE ? OR p.description LIKE ?)';
@@ -36,14 +49,12 @@ router.get('/', async (req, res) => {
             params.push(category);
         }
 
-        // Hitung total produk untuk pagination
         const [countResult] = await db.execute(
             `SELECT COUNT(*) as total FROM products p ${whereClause}`,
             params
         );
         const total = countResult[0].total;
 
-        // Ambil produk sesuai halaman
         const [products] = await db.execute(
             `SELECT p.*, u.username as seller_username, u.shop_name
              FROM products p

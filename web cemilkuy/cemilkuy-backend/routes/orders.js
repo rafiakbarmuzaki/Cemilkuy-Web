@@ -113,13 +113,16 @@ router.get('/', verifyToken, async (req, res) => {
         let query;
         let params = [];
 
-        if (req.user.role === 'admin') {
+        // Cek query parameter untuk membedakan "riwayat belanja saya" vs "pesanan masuk ke toko saya"
+        const asCustomer = req.query.as_customer === 'true';
+
+        if (req.user.role === 'admin' && !asCustomer) {
             // Admin bisa lihat semua pesanan
             query = `SELECT o.*, u.username as customer_username
                      FROM orders o
                      LEFT JOIN users u ON o.customer_id = u.user_id
                      ORDER BY o.order_date DESC`;
-        } else if (req.user.role === 'seller') {
+        } else if (req.user.role === 'seller' && !asCustomer) {
             // Seller hanya lihat pesanan ke tokonya
             query = `SELECT o.*, u.username as customer_username
                      FROM orders o
@@ -128,7 +131,7 @@ router.get('/', verifyToken, async (req, res) => {
                      ORDER BY o.order_date DESC`;
             params = [req.user.user_id];
         } else {
-            // Member hanya lihat pesanannya sendiri
+            // Riwayat belanja sendiri (member, atau seller/admin yang belanja juga)
             query = `SELECT o.* FROM orders o
                      WHERE o.customer_id = ?
                      ORDER BY o.order_date DESC`;

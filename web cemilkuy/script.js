@@ -376,7 +376,7 @@ async function openHistory() {
 
     try {
         const token = localStorage.getItem('cemilkuy_token');
-        const res = await fetch(`${API_URL}/orders`, {
+        const res = await fetch(`${API_URL}/orders?as_customer=true`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -423,22 +423,44 @@ async function bukaRatingDariOrder(orderId) {
         const data = await res.json();
 
         if (data.success && data.data.items.length > 0) {
-            const firstItem = data.data.items[0];
-            currentRateId = firstItem.product_id;
-            currentRateVal = 0;
-
-            document.getElementById('rating-product-name').innerText = firstItem.product_name;
-            document.getElementById('history-modal').style.display = 'none';
-            document.getElementById('rating-modal').style.display = 'flex';
+            tampilkanPilihanProdukRating(data.data.items);
         }
     } catch (err) {
         alert('Gagal memuat detail pesanan.');
     }
 }
 
-function closeHistory() {
-    const modal = document.getElementById('history-modal');
-    if (modal) modal.style.display = 'none';
+function tampilkanPilihanProdukRating(items) {
+    const historyModal = document.getElementById('history-modal');
+    const modalContent = historyModal.querySelector('.modal-content');
+
+    modalContent.innerHTML = `
+        <span class="close-modal" onclick="closeHistory()">&times;</span>
+        <h2 style="text-align:center; margin-bottom:20px;">Pilih Produk untuk Dinilai</h2>
+        <div>
+            ${items.map(item => `
+                <div style="border:1px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; display:flex; align-items:center; gap:12px;">
+                    <img src="${item.image ? 'http://localhost:3000' + item.image : 'https://via.placeholder.com/50'}" 
+                         style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
+                    <div style="flex:1;">
+                        <div style="font-weight:bold; font-size:14px;">${item.product_name}</div>
+                        <div style="font-size:12px; color:#888;">Jumlah: ${item.quantity}</div>
+                    </div>
+                    <button onclick="pilihProdukUntukRating(${item.product_id}, '${item.product_name.replace(/'/g, "\\'")}')" 
+                            class="btn-rate">
+                        <i class="fas fa-star"></i> Nilai
+                    </button>
+                </div>`).join('')}
+        </div>`;
+}
+
+function pilihProdukUntukRating(productId, productName) {
+    currentRateId = productId;
+    currentRateVal = 0;
+
+    document.getElementById('rating-product-name').innerText = productName;
+    document.getElementById('history-modal').style.display = 'none';
+    document.getElementById('rating-modal').style.display = 'flex';
 }
 
 function closeHistory() {
